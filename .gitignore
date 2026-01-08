@@ -1,0 +1,3 @@
+Script/Data/*.csv
+Script/Data/*.geojson
+node_modules/

@@ -5,36 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Commune Scanner</title>
     <link rel="stylesheet" href="main.css" />
+    <script src="main.js"></script>
+    <script src="leaflet.js"></script>
+
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="leaflet.css" />
   </head>
   <body>
-    <header>
-      <div class="header">
-        <span>Commune Scanner</span>
+    <header class="topbar">
+      <div class="topbar-content">
+        <h1>Commune Scanner</h1>
+
         <div class="search-box">
-          <input
-            type="text"
-            class="search-input"
-            placeholder="Rechercher une commune..."
-          />
+          <input type="text" placeholder="Rechercher une commune..." />
         </div>
-        <div class="filter-header">
-          <button class="filters-button">Filtres</button>
-        </div>
+
+        <button class="filters-btn">Filtres</button>
       </div>
     </header>
+
     <div class="main">
       <div class="map-container">
         <div id="map"></div>
         <div class="compare-btn">Comparer</div>
       </div>
-      <div class="sidebar">
-        <div class="section">
-          <h3>Commune A</h3>
-        </div>
-        <div class="section">
-          <h3>Commune B</h3>
-        </div>
-        <div class="section"></div>
+      <div class="side-panel">
+        <!-- Card Commune A -->
+        <section class="commune-card">
+          <h2 class="commune-title">Commune A</h2>
+          <a href="#" class="commune-link">Reims</a>
+          <p class="insee">Code INSEE: 51454</p>
+
+          <ul class="indicators">
+            <li>
+              <span class="label">Population</span>
+              <span class="value">182 460 hab.</span>
+            </li>
+            <li>
+              <span class="label">Taux vacance</span>
+              <span class="value">10,5 %</span>
+            </li>
+            <li>
+              <span class="label">Prix m²</span>
+              <span class="value">2 100 €</span>
+            </li>
+            <li>
+              <span class="label">Délinquance</span>
+              <span class="value warning">53,8 % • Moyen</span>
+            </li>
+          </ul>
+
+          <div class="transport">
+            <h3>Transports</h3>
+            <div class="chip-list">
+              <span class="chip">Tramway (2 lignes)</span>
+              <span class="chip">Bus</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Card Commune B -->
+        <section class="commune-card">
+          <h2 class="commune-title">Commune B</h2>
+          <a href="#" class="commune-link">Paris</a>
+          <p class="insee">Code INSEE: 75056</p>
+
+          <ul class="indicators">
+            <li>
+              <span class="label">Population</span>
+              <span class="value">2 165 423 hab.</span>
+            </li>
+            <li>
+              <span class="label">Taux vacance</span>
+              <span class="value">8,2 %</span>
+            </li>
+            <li>
+              <span class="label">Prix m²</span>
+              <span class="value">10 500 €</span>
+            </li>
+            <li>
+              <span class="label">Délinquance</span>
+              <span class="value danger">72,5 % • Élevé</span>
+            </li>
+          </ul>
+        </section>
       </div>
     </div>
   </body>
