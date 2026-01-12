@@ -96,6 +96,7 @@ body {
   padding: 16px;
   overflow-y: auto;
   box-shadow: -2px 0 8px rgba(0,0,0,0.08);
+  width: 262px;
 }
 
 .commune-card {
@@ -103,6 +104,7 @@ body {
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
+  width: 230px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
@@ -180,4 +182,40 @@ body {
   border-radius: 999px;
   background: #e5e7eb;
   color: #374151;
+}
+
+.delete-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.delete-btn:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.delete-btn:active {
+    transform: scale(0.95);
+}
+
+/* Remove the default style of leaflet */
+.leaflet-interactive:focus {
+    outline: none;
+}
+
+.leaflet-interactive:focus-visible {
+    outline: none;
 }
