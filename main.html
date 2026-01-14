@@ -32,22 +32,104 @@
         <div id="map"></div>
       </div>
       <div class="side-panel">
-        <div
-          class="empty-message"
-          style="
-            text-align: center;
-            padding: 40px 20px;
-            color: #9ca3af;
-            font-size: 15px;
-          "
-        >
-          <p style="font-size: 48px; margin: 0">🗺️</p>
-          <p style="margin: 16px 0 8px; font-weight: 600; color: #6b7280">
-            Aucune commune sélectionnée
-          </p>
-          <p style="margin: 0; font-size: 14px">
-            Cliquez sur une commune de la carte pour voir ses informations
-          </p>
+        <div class="filters-panel">
+          <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #111827">
+            Filtres
+          </h3>
+
+          <div class="filter-group" style="margin-bottom: 15px">
+            <label style="display: block; font-weight: 500; margin-bottom: 5px"
+              >Loyer max (€/m²)</label
+            >
+            <input
+              type="range"
+              id="loyerSlider"
+              min="10"
+              max="30"
+              value="30"
+              step="1"
+              style="width: 100%"
+            />
+            <span id="loyerValue" style="font-size: 14px; color: #6b7280"
+              >30</span
+            >
+          </div>
+
+          <div class="filter-group" style="margin-bottom: 15px">
+            <label style="display: block; font-weight: 500; margin-bottom: 5px"
+              >Taux criminalité max (‰)</label
+            >
+            <input
+              type="range"
+              id="crimeSlider"
+              min="0"
+              max="25"
+              value="25"
+              step="1"
+              style="width: 100%"
+            />
+            <span id="crimeValue" style="font-size: 14px; color: #6b7280"
+              >25</span
+            >
+          </div>
+
+          <div class="filter-group">
+            <label style="display: block; font-weight: 500; margin-bottom: 5px"
+              >Logements vacants</label
+            >
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                font-size: 14px;
+                cursor: pointer;
+              "
+            >
+              <input
+                type="checkbox"
+                id="vacantsOnly"
+                style="margin-right: 8px"
+              />
+              Afficher seulement vacants
+            </label>
+          </div>
+
+          <button
+            id="resetFilters"
+            style="
+              width: 100%;
+              margin-top: 10px;
+              padding: 8px;
+              background: #ef4444;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              font-weight: 500;
+              cursor: pointer;
+            "
+          >
+            Réinitialiser
+          </button>
+        </div>
+
+        <div class="cards-container">
+          <div
+            class="empty-message"
+            style="
+              text-align: center;
+              padding: 40px 20px;
+              color: #9ca3af;
+              font-size: 15px;
+            "
+          >
+            <p style="font-size: 48px; margin: 0">🗺️</p>
+            <p style="margin: 16px 0 8px; font-weight: 600; color: #6b7280">
+              Aucune commune sélectionnée
+            </p>
+            <p style="margin: 0; font-size: 14px">
+              Cliquez sur une commune de la carte pour voir ses informations
+            </p>
+          </div>
         </div>
       </div>
     </div>

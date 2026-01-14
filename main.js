@@ -1,5 +1,6 @@
 "use strict";
 
+let markers = [];
 window.onload = async () => {
     let map = L.map("map", {
         center: [48.856667, 2.352222],
@@ -15,7 +16,6 @@ window.onload = async () => {
     );
     layer.addTo(map);
 
-    let markers = [];
 
     fetch("./static/data/Final.geojson")
         .then(response => response.json())
@@ -83,8 +83,9 @@ window.onload = async () => {
                                 shadowSize: [41, 41]
                             })
                         }).addTo(map);
-                        
+                        marker.code = props.code; 
                         markers.push(marker);
+
                         addCommuneCard(props);
                     }
                 });
@@ -94,12 +95,13 @@ window.onload = async () => {
                 style: styleFeature,
                 onEachFeature: onEachFeature
             }).addTo(map);
+
         });
 };
 
 // Fonction pour ajouter une carte de commune dans la sidebar
 function addCommuneCard(properties) {
-    const sidebar = document.querySelector('.side-panel');
+    const sidebar = document.querySelector('.cards-container');
     
     // Supprimer le message d'information s'il existe
     const emptyMessage = sidebar.querySelector('.empty-message');
@@ -115,11 +117,13 @@ function addCommuneCard(properties) {
     const vacants = properties.vacants || "N/A";
     
     const cardHTML = `
-        <div class="commune-card">
-            <button class="delete-btn" onclick="deleteCard('${cardId}')" title="Supprimer cette commune">
-              ✕
-            </button>
-            <p class="commune-title">Commune</p>
+        <div class="commune-card" id="${cardId}">
+            <div class="header-card">
+                <p class="commune-title">Commune</p>
+                <button class="delete-btn" onclick="deleteCard(${cardId})" title="Supprimer cette commune">
+                ✕
+                </button>
+            </div>
             <a href="#" class="commune-link">${nom}</a>
             <p class="insee">INSEE: ${insee}</p>
             <ul class="indicators">
@@ -143,38 +147,43 @@ function addCommuneCard(properties) {
 }
 
 // Fonction pour supprimer une carte et son marqueur
-function deleteCard(cardId) {
+function deleteCard(cardId) {    
     const card = document.getElementById(cardId);
-    const sidebar = document.querySelector('.side-panel');
+    const sidebar = document.querySelector('.cards-container');
     
     if (card) {
+
         card.style.transition = 'opacity 0.3s, transform 0.3s';
         card.style.opacity = '0';
         card.style.transform = 'translateX(-20px)';
+
+        card.remove();
+
+        const communeMarker = markers.find(m => m.code == cardId);
         
-        setTimeout(() => {
-            card.remove();
-            
-            const remainingCards = sidebar.querySelectorAll('.commune-card');
-            if (remainingCards.length === 0) {
-                const emptyHTML = `
-                    <div class="empty-message" style="
-                        text-align: center;
-                        padding: 40px 20px;
-                        color: #9ca3af;
-                        font-size: 15px;
-                    ">
-                        <p style="font-size: 48px; margin: 0;">🗺️</p>
-                        <p style="margin: 16px 0 8px; font-weight: 600; color: #6b7280;">
-                            Aucune commune sélectionnée
-                        </p>
-                        <p style="margin: 0; font-size: 14px;">
-                            Cliquez sur une commune de la carte pour voir ses informations
-                        </p>
-                    </div>
-                `;
-                sidebar.insertAdjacentHTML('beforeend', emptyHTML);
-            }
-        }, 300);
-    }
+        if (communeMarker) {
+            communeMarker.remove(map);
+            markers = markers.filter(m => m.code != cardId);
+        }
+        const remainingCards = sidebar.querySelectorAll('.commune-card');
+        if (remainingCards.length === 0) {
+            const emptyHTML = `
+                <div class="empty-message" style="
+                    text-align: center;
+                    padding: 40px 20px;
+                    color: #9ca3af;
+                    font-size: 15px;
+                ">
+                    <p style="font-size: 48px; margin: 0;">🗺️</p>
+                    <p style="margin: 16px 0 8px; font-weight: 600; color: #6b7280;">
+                        Aucune commune sélectionnée
+                    </p>
+                    <p style="margin: 0; font-size: 14px;">
+                        Cliquez sur une commune de la carte pour voir ses informations
+                    </p>
+                </div>
+            `;
+            sidebar.insertAdjacentHTML('beforeend', emptyHTML);
+        }
+}
 }
