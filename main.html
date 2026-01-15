@@ -19,17 +19,22 @@
       <div class="topbar-content">
         <h1>Commune Scanner</h1>
 
-        <div class="search-box">
-          <input type="text" placeholder="Rechercher une commune..." />
+        <div class="search-box autocomplete">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Rechercher une commune..."
+            autocomplete="off"
+          />
+          <div id="autocompleteList" class="autocomplete-list"></div>
         </div>
-
-        <button class="filters-btn">Filtres</button>
       </div>
     </header>
 
     <div class="main">
       <div class="map-container">
         <div id="map"></div>
+        <div id="legend" class="map-legend" style="display: none"></div>
       </div>
       <div class="side-panel">
         <div class="filters-panel">
@@ -37,10 +42,31 @@
             Filtres
           </h3>
 
+          <!-- Choix du calque -->
           <div class="filter-group" style="margin-bottom: 15px">
-            <label style="display: block; font-weight: 500; margin-bottom: 5px"
-              >Loyer max (€/m²)</label
+            <label style="display: block; font-weight: 500; margin-bottom: 5px">
+              Calque affiché
+            </label>
+            <select
+              id="layerSelect"
+              style="
+                width: 100%;
+                padding: 6px;
+                border-radius: 6px;
+                border: 1px solid #d1d5db;
+              "
             >
+              <option value="loyer" selected>Loyer</option>
+              <option value="crime">Taux de criminalité</option>
+              <option value="vacants">Logements vacants</option>
+            </select>
+          </div>
+
+          <!-- Loyer -->
+          <div class="filter-group" style="margin-bottom: 15px">
+            <label style="display: block; font-weight: 500; margin-bottom: 5px">
+              Loyer max €/m²
+            </label>
             <input
               type="range"
               id="loyerSlider"
@@ -55,43 +81,42 @@
             >
           </div>
 
+          <!-- Crimes -->
           <div class="filter-group" style="margin-bottom: 15px">
-            <label style="display: block; font-weight: 500; margin-bottom: 5px"
-              >Taux criminalité max (‰)</label
-            >
+            <label style="display: block; font-weight: 500; margin-bottom: 5px">
+              Nb crimes et délits pour 1000 habitants max
+            </label>
             <input
               type="range"
               id="crimeSlider"
               min="0"
-              max="25"
-              value="25"
-              step="1"
+              max="300"
+              value="300"
+              step="5"
               style="width: 100%"
             />
             <span id="crimeValue" style="font-size: 14px; color: #6b7280"
-              >25</span
+              >300</span
             >
           </div>
 
-          <div class="filter-group">
-            <label style="display: block; font-weight: 500; margin-bottom: 5px"
-              >Logements vacants</label
-            >
-            <label
-              style="
-                display: flex;
-                align-items: center;
-                font-size: 14px;
-                cursor: pointer;
-              "
-            >
-              <input
-                type="checkbox"
-                id="vacantsOnly"
-                style="margin-right: 8px"
-              />
-              Afficher seulement vacants
+          <!-- Logements vacants -->
+          <div class="filter-group" style="margin-bottom: 15px">
+            <label style="display: block; font-weight: 500; margin-bottom: 5px">
+              Logements vacants max
             </label>
+            <input
+              type="range"
+              id="vacantsSlider"
+              min="0"
+              max="70000"
+              value="70000"
+              step="100"
+              style="width: 100%"
+            />
+            <span id="vacantsValue" style="font-size: 14px; color: #6b7280"
+              >70000</span
+            >
           </div>
 
           <button
