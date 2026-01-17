@@ -7,7 +7,7 @@
 const CONFIG = {
   MAP: {
     CENTER: [48.856667, 2.352222],
-    ZOOM: 8,
+    ZOOM: 7,
     TILE_URL: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
     MAX_ZOOM: 15,
     ATTRIBUTION: "© OpenStreetMap",
@@ -434,7 +434,6 @@ function selectMatch(index) {
   const props = match.props;
   const feature = match.feature;
 
-  // Vérifier si la commune passe les filtres
   if (!passesFilters(props)) {
     alert("Cette commune ne correspond pas aux filtres actuels");
     autocompleteList.style.display = "none";
@@ -442,16 +441,13 @@ function selectMatch(index) {
     return;
   }
 
-  // Vérifier si un marker existe déjà pour cette commune
   const existingMarker = markers.find((m) => m.code === props.code);
   if (!existingMarker) {
     addMarker(L.geoJSON(feature).getBounds(), map, props.code);
 
-    // Ajouter la carte dans la sidebar
     addCommuneCard(props);
   }
 
-  // Zoomer sur la commune
   zoomOnCommuneFeature(feature, map);
   
   autocompleteList.style.display = "none";
@@ -480,15 +476,14 @@ function selectMatch(index) {
     if (!matches.length) return;
 
     if (e.key === "ArrowDown") {
-      e.preventDefault();
+      e.preventDefault(); // Empêche le curseur de descendre dans l'input
       selectedIndex = selectedIndex < maxIndex ? selectedIndex + 1 : 0;
       focusMatch(selectedIndex);
     } else if (e.key === "ArrowUp") {
-      e.preventDefault();
+      e.preventDefault(); // Empêche le curseur de monter dans l'input
       selectedIndex = selectedIndex > 0 ? selectedIndex - 1 : maxIndex;
       focusMatch(selectedIndex);
     } else if (e.key === "Enter") {
-      e.preventDefault();
       if (selectedIndex >= 0) {
         selectMatch(selectedIndex);
       }
