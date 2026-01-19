@@ -38,24 +38,12 @@
       </div>
       <div class="side-panel">
         <div class="filters-panel">
-          <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #111827">
-            Filtres
-          </h3>
+          <h3 class="filters-title">Filtres</h3>
 
           <!-- Choix du calque -->
-          <div class="filter-group" style="margin-bottom: 15px">
-            <label style="display: block; font-weight: 500; margin-bottom: 5px">
-              Calque affiché
-            </label>
-            <select
-              id="layerSelect"
-              style="
-                width: 100%;
-                padding: 6px;
-                border-radius: 6px;
-                border: 1px solid #d1d5db;
-              "
-            >
+          <div class="filter-group">
+            <label class="filters-title-group"> Calque affiché </label>
+            <select id="layerSelect" class="filters-select">
               <option value="loyer" selected>Loyer</option>
               <option value="crime">Taux de criminalité</option>
               <option value="vacants">Logements vacants</option>
@@ -63,10 +51,8 @@
           </div>
 
           <!-- Loyer -->
-          <div class="filter-group" style="margin-bottom: 15px">
-            <label style="display: block; font-weight: 500; margin-bottom: 5px">
-              Loyer max €/m²
-            </label>
+          <div class="filter-group">
+            <label class="filters-title-group"> Loyer max €/m² </label>
             <input
               type="range"
               id="loyerSlider"
@@ -74,37 +60,31 @@
               max="30"
               value="30"
               step="1"
-              style="width: 100%"
+              class="filters-range"
             />
-            <span id="loyerValue" style="font-size: 14px; color: #6b7280"
-              >30</span
-            >
+            <span id="loyerValue" class="filters-range-value">30</span>
           </div>
 
           <!-- Crimes -->
-          <div class="filter-group" style="margin-bottom: 15px">
-            <label style="display: block; font-weight: 500; margin-bottom: 5px">
+          <div class="filter-group">
+            <label class="filters-title-group">
               Nb crimes et délits pour 1000 habitants max
             </label>
             <input
               type="range"
               id="crimeSlider"
               min="0"
-              max="1000"
-              value="1000"
+              max="2000"
+              value="2000"
               step="5"
-              style="width: 100%"
+              class="filters-range"
             />
-            <span id="crimeValue" style="font-size: 14px; color: #6b7280"
-              >1000</span
-            >
+            <span id="crimeValue" class="filters-range-value">2000</span>
           </div>
 
           <!-- Logements vacants -->
-          <div class="filter-group" style="margin-bottom: 15px">
-            <label style="display: block; font-weight: 500; margin-bottom: 5px">
-              Logements vacants max
-            </label>
+          <div class="filter-group">
+            <label class="filters-title-group"> Logements vacants max </label>
             <input
               type="range"
               id="vacantsSlider"
@@ -112,46 +92,19 @@
               max="70000"
               value="70000"
               step="100"
-              style="width: 100%"
+              class="filters-range"
             />
-            <span id="vacantsValue" style="font-size: 14px; color: #6b7280"
-              >70000</span
-            >
+            <span id="vacantsValue" class="filters-range-value">70000</span>
           </div>
 
-          <button
-            id="resetFilters"
-            style="
-              width: 100%;
-              margin-top: 10px;
-              padding: 8px;
-              background: #ef4444;
-              color: white;
-              border: none;
-              border-radius: 6px;
-              font-weight: 500;
-              cursor: pointer;
-            "
-          >
-            Réinitialiser
-          </button>
+          <button id="resetFilters">Réinitialiser</button>
         </div>
 
         <div class="cards-container">
-          <div
-            class="empty-message"
-            style="
-              text-align: center;
-              padding: 40px 20px;
-              color: #9ca3af;
-              font-size: 15px;
-            "
-          >
-            <p style="font-size: 48px; margin: 0">🗺️</p>
-            <p style="margin: 16px 0 8px; font-weight: 600; color: #6b7280">
-              Aucune commune sélectionnée
-            </p>
-            <p style="margin: 0; font-size: 14px">
+          <div class="empty-message">
+            <p class="empty-message-emoji">🗺️</p>
+            <p class="empty-message-title">Aucune commune sélectionnée</p>
+            <p class="empty-message-subtitle">
               Cliquez sur une commune de la carte pour voir ses informations
             </p>
           </div>

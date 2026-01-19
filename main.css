@@ -123,6 +123,50 @@ body {
   border-bottom: 1px solid #e5e7eb;
 }
 
+.filter-group{
+  margin-bottom: 15px;
+}
+
+.filters-title{
+  margin-bottom: 15px; 
+  font-size: 16px; 
+  color: black;
+}
+
+.filters-title-group{
+  display: block; 
+  font-weight: 500; 
+  margin-bottom: 5px;
+}
+
+.filters-select{
+  width: 100%;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+}
+
+.filters-range{
+  width: 100%;
+}
+
+.filters-range-value{
+  font-size: 14px; 
+  color: #6b7280;
+}
+
+#resetFilters{
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
 .cards-container {
   flex: 1; 
   overflow-y: auto; 
@@ -139,6 +183,54 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
 }
+
+.commune-card-title{
+  margin-bottom: 12px; 
+  font-size: 18px; 
+  color: #0175ff;
+}
+
+.commune-card-data{
+  margin-top: 6px; 
+  color: #4b5563; 
+  font-size: 14px;
+}
+
+.remove-card-button{
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.empty-message{
+  text-align: center; 
+  padding: 40px 20px; 
+  color: #9ca3af; 
+  font-size: 15px
+}
+
+.empty-message-emoji{
+  font-size: 48px; 
+  margin: 0;
+}
+
+.empty-message-title{
+  margin: 16px 0 8px; 
+  font-weight: 600; 
+  color: #6b7280;
+}
+
+.empty-message-subtitle{
+  font-size: 14px;
+  margin: 0;
+}
+
+
 
 /* Legend */
 .map-legend {

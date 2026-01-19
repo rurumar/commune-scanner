@@ -49,7 +49,7 @@ let activeLayerField = "loyer";
 let geojsonLayer = null;
 let filters = {
   loyer: 30,
-  crime: 1000,
+  crime: 2000,
   vacants: 70000,
 };
 
@@ -60,6 +60,7 @@ let filters = {
 window.onload = async () => {
   const map = initMap();
   const geojsonData = await loadGeoJson(CONFIG.GEOJSON_URL);
+  
   if (!geojsonData) return;
 
   const communesIndex = buildCommunesIndex(geojsonData);
@@ -308,32 +309,22 @@ function addCommuneCard(properties) {
 
   const cardHTML = `
     <div class="commune-card" data-card-id="${cardId}">
-      <h3 style="margin: 0 0 12px; font-size: 18px; color: #0175ff">${nom}</h3>
-      <p style="margin: 6px 0; color: #4b5563; font-size: 14px">
+      <h3 class="commune-card-title">${nom}</h3>
+      <p class="commune-card-data">
         <strong>INSEE :</strong> ${insee}
       </p>
-      <p style="margin: 6px 0; color: #4b5563; font-size: 14px">
+      <p class="commune-card-data">
         <strong>Loyer :</strong> ${loyer} €/m²
       </p>
-      <p style="margin: 6px 0; color: #4b5563; font-size: 14px">
+      <p class="commune-card-data">
         <strong>Taux criminalité :</strong> ${tauxCriminalite}
       </p>
-      <p style="margin: 6px 0; color: #4b5563; font-size: 14px">
+      <p class="commune-card-data">
         <strong>Logements vacants :</strong> ${vacants}
       </p>
       <button 
-        class="remove-card-btn" 
-        onclick="removeCard('${cardId}')"
-        style="
-          margin-top: 10px;
-          padding: 6px 12px;
-          background: #ef4444;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 13px;
-        ">
+        class="remove-card-button" 
+        onclick="removeCard('${cardId}')">
         Retirer
       </button>
     </div>
@@ -355,12 +346,12 @@ function removeCard(cardId) {
   const sidebar = document.querySelector(".cards-container");
   if (sidebar && !sidebar.querySelector(".commune-card")) {
     sidebar.innerHTML = `
-      <div class="empty-message" style="text-align: center; padding: 40px 20px; color: #9ca3af; font-size: 15px">
-        <p style="font-size: 48px; margin: 0">🗺️</p>
-        <p style="margin: 16px 0 8px; font-weight: 600; color: #6b7280">
+      <div class="empty-message">
+        <p class="empty-message-emoji">🗺️</p>
+        <p class="empty-message-title">
           Aucune commune sélectionnée
         </p>
-        <p style="margin: 0; font-size: 14px">
+        <p class="empty-message-subtitle">
           Cliquez sur une commune de la carte pour voir ses informations
         </p>
       </div>
@@ -569,12 +560,12 @@ function setupFilters() {
 
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
-      filters = { loyer: 30, crime: 3000, vacants: 70000 };
+      filters = { loyer: 30, crime: 2000, vacants: 70000 };
 
         if (loyerSlider) loyerSlider.value = 30;
         if (loyerValue) loyerValue.textContent = 30;
-        if (crimeSlider) crimeSlider.value = 1000;
-        if (crimeValue) crimeValue.textContent = 1000;
+        if (crimeSlider) crimeSlider.value = 2000;
+        if (crimeValue) crimeValue.textContent = 2000;
         if (vacantsSlider) vacantsSlider.value = 70000;
         if (vacantsValue) vacantsValue.textContent = 70000;
 
