@@ -52,6 +52,8 @@ let filters = {
   crime: 2000,
   vacants: 70000,
 };
+let isMapMoving = false;  // Flag global
+
 
 // ============================================================================
 // POINT D'ENTRÉE
@@ -65,7 +67,7 @@ window.onload = async () => {
 
   const communesIndex = buildCommunesIndex(geojsonData);
   geojsonLayer = createGeoJsonLayer(geojsonData, map);
-
+  
   setupSearchAutocomplete(communesIndex, map);
   setupLayerSwitching();
   setupFilters();
@@ -189,18 +191,19 @@ function createTooltipContent(props) {
   const loyer = props.loyer ?? "N/A";
   const tauxCriminalite = props.taux_pour_mille_2024 ?? "N/A";
   const vacants = props.vacants ?? "N/A";
-
+  const transports = props["Transports 2025"];
   return `
 <strong>${nomCommune}</strong><br/>
 Loyer : ${loyer} €/m²<br/>
 Taux criminalité : ${tauxCriminalite}<br/>
-Logements vacants : ${vacants}
+Logements vacants : ${vacants}<br/>
+Nombre d'arrêt de transport : ${transports}
   `.trim();
 }
 
 function handleMouseOver(e, layer) {
   const props = layer.feature.properties || {};
-  if (!passesFilters(props)) return; // Pas de tooltip si filtré
+  if (!passesFilters(props) || isMapMoving) return; // Pas de tooltip si filtré
 
   const target = e.target;
   target.setStyle({
@@ -216,11 +219,21 @@ function handleMouseOver(e, layer) {
 
 function handleMouseOut(e) {
   const target = e.target;
-  geojsonLayer.resetStyle(target);
-  if (target.getTooltip()) {
-    target.closeTooltip();
-    target.unbindTooltip();
-  }
+  geojsonLayer.resetStyle(target);  // Déjà bon
+  target.closeTooltip();
+  target.unbindTooltip();
+}
+
+function handleMoveEnd() {
+  geojsonLayer.eachLayer(layer => {
+    if (layer.closeTooltip) layer.closeTooltip();
+    if (layer.unbindTooltip) layer.unbindTooltip(); 
+    geojsonLayer.resetStyle(layer);
+  });
+  // SUpprime tous les tooltips orphelins directement depuis le DOM (bug Leaflet)
+  setTimeout(() => {
+    document.querySelectorAll('.leaflet-tooltip').forEach(el => el.remove());
+  }, 50);
 }
 
 function handleClick(e, map, feature) {
@@ -231,7 +244,8 @@ function handleClick(e, map, feature) {
   if (existingMarker) return;
 
   addMarker(e.target.getBounds(), map, props.code);
-
+  console.log(props);
+  
   addCommuneCard(props);
 }
 
@@ -256,7 +270,11 @@ function createGeoJsonLayer(geojsonData, map) {
   });
 
   layer.addTo(map);
-  return layer;
+  map.on('movestart', () => { isMapMoving = true; });
+  map.on('moveend zoomend', () => { 
+    isMapMoving = false; 
+    handleMoveEnd();  // Reset styles/tooltips
+  });  return layer;
 }
 
 // ============================================================================
@@ -306,7 +324,7 @@ function addCommuneCard(properties) {
   const loyer = properties.loyer || "N/A";
   const tauxCriminalite = properties.taux_pour_mille_2024 || "N/A";
   const vacants = properties.vacants || "N/A";
-
+  const transports = properties["Transports 2025"] || "N/A";
   const cardHTML = `
     <div class="commune-card" data-card-id="${cardId}">
       <h3 class="commune-card-title">${nom}</h3>
@@ -321,6 +339,9 @@ function addCommuneCard(properties) {
       </p>
       <p class="commune-card-data">
         <strong>Logements vacants :</strong> ${vacants}
+      </p>
+      <p class="commune-card-data">
+        <strong>Nb arrêt de transport :</strong> ${transports}
       </p>
       <button 
         class="remove-card-button" 
