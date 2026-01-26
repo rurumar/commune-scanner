@@ -12,7 +12,7 @@ const CONFIG = {
     MAX_ZOOM: 15,
     ATTRIBUTION: "© OpenStreetMap",
   },
-  GEOJSON_URL: "./static/data/Final.geojson",
+  GEOJSON_URL: "./static/data/final.geojson",
   THRESHOLDS: {
     loyer: [10, 15, 20, 25],
     crime: [30, 60, 90, 130],
@@ -52,7 +52,7 @@ let filters = {
   crime: 2000,
   vacants: 70000,
 };
-let isMapMoving = false;  // Flag global
+let isMapMoving = false;  
 
 
 // ============================================================================
@@ -289,13 +289,13 @@ function updateLegend() {
   let colors = CONFIG.COLORS.valid;
   colors.push(CONFIG.COLORS.invalid);
 
-  let html = `<h4 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">${legendConfig.title}</h4>`;
+  let html = `<h4 class="legend-title">${legendConfig.title}</h4>`;
 
   legendConfig.ranges.forEach((label, i) => {
     html += `
-      <div style="display: flex; align-items: center; margin-bottom: 5px;">
-        <div style="width: 20px; height: 20px; background: ${colors[i]}; margin-right: 8px; border-radius: 3px;"></div>
-        <span style="font-size: 13px;">${label}</span>
+      <div class="legent-content">
+        <div style="background: ${colors[i]};" class="legent-color"></div>
+        <span class="legent-span">${label}</span>
       </div>
     `;
   });

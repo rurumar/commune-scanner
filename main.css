@@ -108,6 +108,29 @@ body {
   background: #e0e0e0;
 } 
 
+.legend-title{
+  margin-bottom: 10px; 
+  font-size: 14px; 
+  font-weight: 600;
+}
+
+.legent-content{
+  display: flex; 
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.legent-span{
+  font-size: 13px;
+}
+
+.legent-color{
+  width: 20px; 
+  height: 20px; 
+  margin-right: 8px; 
+  border-radius: 3px;
+}
+
 /* Sidebar */
 .side-panel {
   background: #f5f5f7;
@@ -246,6 +269,7 @@ body {
   font-family: Arial, sans-serif;
   font-size: 12px;
   min-width: 140px;
+  display: none;
 }
 
 /* Leaflet overrides */
