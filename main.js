@@ -36,7 +36,7 @@ const CONFIG = {
       ranges: ["< 5k", "5k-15k", "15k-25k", "25k-40k", "> 40k", "Pas de données"],
     },
   },
-  AUTOCOMPLETE_MAX_RESULTS: 8,
+  AUTOCOMPLETE_MAX_RESULTS: 16,
   FIELD_MAPPINGS: {
     loyer: "loyer",
     crime: "taux_pour_mille_2024",
@@ -49,8 +49,9 @@ let activeLayerField = "loyer";
 let geojsonLayer = null;
 let filters = {
   loyer: 30,
-  crime: 2000,
-  vacants: 70000,
+  crime: 1000,
+  vacants: 200000,
+  transports: 200000
 };
 let isMapMoving = false;  
 
@@ -71,6 +72,7 @@ window.onload = async () => {
   setupSearchAutocomplete(communesIndex, map);
   setupLayerSwitching();
   setupFilters();
+  setupFiltersToggle();
   updateLegend();
 };
 
@@ -149,14 +151,16 @@ function passesFilters(props) {
   const loyer = props.loyer;
   const crime = props.taux_pour_mille_2024;
   const vacants = props.vacants;
+  const transports = props["Transports 2025"];
 
   // Si la valeur est null/undefined, on laisse passer (sera gris dans getColor)
   // Sinon on vérifie qu'elle respecte le filtre
   const passesLoyerFilter = loyer == null || loyer <= filters.loyer;
   const passesCrimeFilter = crime == null || crime <= filters.crime;
   const passesVacantsFilter = vacants == null || vacants <= filters.vacants;
+  const transportsFilter = transports == null || transports <= filters.transports;
 
-  return passesLoyerFilter && passesCrimeFilter && passesVacantsFilter;
+  return passesLoyerFilter && passesCrimeFilter && passesVacantsFilter && transportsFilter;
 }
 
 // ============================================================================
@@ -328,30 +332,19 @@ function addCommuneCard(properties) {
   const cardHTML = `
     <div class="commune-card" data-card-id="${cardId}">
       <h3 class="commune-card-title">${nom}</h3>
-      <p class="commune-card-data">
-        <strong>INSEE :</strong> ${insee}
-      </p>
-      <p class="commune-card-data">
-        <strong>Loyer :</strong> ${loyer} €/m²
-      </p>
-      <p class="commune-card-data">
-        <strong>Taux criminalité :</strong> ${tauxCriminalite}
-      </p>
-      <p class="commune-card-data">
-        <strong>Logements vacants :</strong> ${vacants}
-      </p>
-      <p class="commune-card-data">
-        <strong>Nb arrêt de transport :</strong> ${transports}
-      </p>
-      <button 
-        class="remove-card-button" 
-        onclick="removeCard('${cardId}')">
-        Retirer
-      </button>
+      <p class="commune-card-data"><strong>INSEE</strong> ${insee}</p>
+      <p class="commune-card-data"><strong>Loyer</strong> <span class="value-loyer">${loyer} m²</span> </p>
+      <p class="commune-card-data"><strong>Taux criminalité</strong> <span class="value-crime">${tauxCriminalite}</span></p>
+      <p class="commune-card-data"><strong>Logements vacants</strong> <span class="value-vacants">${vacants}</span></p>
+      <p class="commune-card-data"><strong>Nb arrêt de transport</strong> <span class="value-transports">${transports}</span></p>
+      <button class="remove-card-button" onclick="removeCard('${cardId}')">Retirer</button>
     </div>
   `;
 
+
   sidebar.insertAdjacentHTML("beforeend", cardHTML);
+  highlightMinMaxValues();
+
 }
 
 function removeCard(cardId) {
@@ -363,6 +356,8 @@ function removeCard(cardId) {
     markers[markerIndex].remove();
     markers.splice(markerIndex, 1);
   }
+  highlightMinMaxValues();
+
 
   const sidebar = document.querySelector(".cards-container");
   if (sidebar && !sidebar.querySelector(".commune-card")) {
@@ -379,6 +374,55 @@ function removeCard(cardId) {
     `;
   }
 }
+
+function highlightMinMaxValues() {
+  const cards = document.querySelectorAll('.commune-card');
+  if (cards.length < 2) return;
+
+  const fields = [
+    { selector: '.value-loyer',    parse: parseFloat },
+    { selector: '.value-crime',    parse: parseFloat },
+    { selector: '.value-vacants',  parse: parseFloat },
+    // Pour transports : on inverse min/max
+    { selector: '.value-transports', parse: parseFloat, invert: true }
+  ];
+
+  fields.forEach(field => {
+    const elements = Array.from(document.querySelectorAll(field.selector));
+    if (!elements.length) return;
+
+    // reset classes
+    elements.forEach(el => {
+      el.classList.remove('value-min', 'value-max');
+    });
+
+    const values = elements
+      .map(el => field.parse(el.textContent.replace(/\s/g, '').replace(',', '.'))) // Transforme la valeur dans le span en number
+      .filter(v => !isNaN(v));
+
+    if (values.length === 0) return;
+
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+
+    elements.forEach(el => {
+      const v = field.parse(el.textContent.replace(/\s/g, '').replace(',', '.'));
+      if (isNaN(v)) return;
+      
+      if (field.invert) {
+        // Pour transports : vert = max, rouge = min
+        if (v === max) el.classList.add('value-min'); 
+        if (v === min) el.classList.add('value-max'); 
+      } else {
+        // Pour les autres : vert = min, rouge = max
+        if (v === min) el.classList.add('value-min');
+        if (v === max) el.classList.add('value-max');
+      }
+    });
+  });
+}
+
+
 
 function addMarker(bounds, map, code){
     const center = bounds.getCenter();
@@ -445,6 +489,8 @@ function selectMatch(index) {
 
   const props = match.props;
   const feature = match.feature;
+  console.log(props);
+  
 
   if (!passesFilters(props)) {
     alert("Cette commune ne correspond pas aux filtres actuels");
@@ -550,6 +596,8 @@ function setupFilters() {
   const crimeValue = document.getElementById("crimeValue");
   const vacantsSlider = document.getElementById("vacantsSlider");
   const vacantsValue = document.getElementById("vacantsValue");
+  const transportsSlider = document.getElementById("transportsSlider");
+  const transportsValue = document.getElementById("transportsValue");
   const resetBtn = document.getElementById("resetFilters");
 
   if (loyerSlider && loyerValue) {
@@ -579,17 +627,27 @@ function setupFilters() {
     });
   }
 
+  if (transportsSlider && transportsValue) {
+    transportsSlider.addEventListener("input", (e) => {
+      const value = Number(e.target.value);
+      transportsValue.textContent = value;
+      filters.vacants = value;
+      geojsonLayer.setStyle(styleFeature);
+    });
+  }
+
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
-      filters = { loyer: 30, crime: 2000, vacants: 70000 };
+      filters = { loyer: 30, crime: 1000, vacants: 200000 };
 
         if (loyerSlider) loyerSlider.value = 30;
         if (loyerValue) loyerValue.textContent = 30;
-        if (crimeSlider) crimeSlider.value = 2000;
-        if (crimeValue) crimeValue.textContent = 2000;
-        if (vacantsSlider) vacantsSlider.value = 70000;
-        if (vacantsValue) vacantsValue.textContent = 70000;
-
+        if (crimeSlider) crimeSlider.value = 1000;
+        if (crimeValue) crimeValue.textContent = 1000;
+        if (vacantsSlider) vacantsSlider.value = 200000;
+        if (vacantsValue) vacantsValue.textContent = 200000;
+        if (transportsSlider) transportsSlider.value = 200000;
+        if (transportsValue) transportsValue.textContent = 200000;
         const layerSelect = document.getElementById("layerSelect");
         layerSelect.value = "loyer";
         activeLayerField = "loyer";
@@ -599,3 +657,27 @@ function setupFilters() {
     });
   }
 }
+
+function setupFiltersToggle() {
+  const toggleBtn = document.getElementById('toggleFilters');
+  const filtersPanel = document.querySelector('.filters-panel');
+  
+  if (!toggleBtn || !filtersPanel) return;
+
+  let isVisible = true; // visible par défaut
+
+  toggleBtn.addEventListener('click', () => {
+    isVisible = !isVisible;
+    
+    if (isVisible) {
+      filtersPanel.classList.remove('hidden');
+      toggleBtn.classList.remove('active');
+      toggleBtn.querySelector('.toggle-icon').textContent = '▼';
+    } else {
+      filtersPanel.classList.add('hidden');
+      toggleBtn.classList.add('active');
+      toggleBtn.querySelector('.toggle-icon').textContent = '▲';
+    }
+  });
+}
+

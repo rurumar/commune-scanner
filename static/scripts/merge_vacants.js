@@ -4,7 +4,7 @@ const csv = require('csv-parser');
 // 1. CONFIGURATION DES CHEMINS
 const csvVacantsFile = ('static/data/logements_vacants_clean.csv');
 const geojsonInputFile = ('static/data/old_final.geojson');
-const finalOutputFile = ('static/data/Final.geojson');
+const finalOutputFile = ('static/data/final.geojson');
 
 const vacantData = {};
 
@@ -49,7 +49,6 @@ function mergeData() {
     console.log("--- FUSION FINALE RÉUSSIE ---");
     console.log(`Fichier créé : ${finalOutputFile}`);
     console.log(`${successCount} communes ont reçu leurs données de logements vacants.`);
-    console.log("Ton GeoJSON contient maintenant : Crime + Loyer + Vacants !");
 
   } catch (err) {
     console.error("Erreur lors de la fusion finale :", err.message);

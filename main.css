@@ -51,6 +51,29 @@ body {
   border-color: #3b82f6;
 }
 
+.toggle-filters-btn {
+  padding: 8px 16px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.toggle-filters-btn:hover {
+  background: #e5e7eb;
+}
+
+.toggle-filters-btn.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
 /* Autocomplete */
 .autocomplete {
   position: relative;
@@ -144,6 +167,15 @@ body {
 .filters-panel {
   padding: 20px;
   border-bottom: 1px solid #e5e7eb;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  overflow: hidden;
+}
+
+.filters-panel.hidden {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 20px;
+  border-bottom: none;
 }
 
 .filter-group{
@@ -219,6 +251,17 @@ body {
   color: #4b5563; 
   font-size: 14px;
 }
+
+.value-min {
+  color: #16a34a; 
+  font-weight: 600;
+}
+
+.value-max {
+  color: #ef4444; /* rouge */
+  font-weight: 600;
+}
+
 
 .remove-card-button{
   margin-top: 10px;
