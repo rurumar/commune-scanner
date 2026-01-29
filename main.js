@@ -72,7 +72,7 @@ window.onload = async () => {
   setupSearchAutocomplete(communesIndex, map);
   setupLayerSwitching();
   setupFilters();
-  setupFiltersToggle();
+  setupFiltersButton();
   updateLegend();
 };
 
@@ -436,28 +436,35 @@ function addMarker(bounds, map, code){
 // AUTOCOMPLETE RECHERCHE COMMUNE
 // ============================================================================
 
+// Configure l'autocomplete de recherche de communes
 function setupSearchAutocomplete(communesIndex, map) {
   const searchInput = document.getElementById("searchInput");
   const autocompleteList = document.getElementById("autocompleteList");
 
   if (!searchInput || !autocompleteList) return;
 
+  // Index de l'élément sélectionné par les flèches (aucun par défaut)
   let selectedIndex = -1;
 
+  // 1. Recherche les communes correspondant à la saisie
   function getMatches(query) {
     const lowerQuery = query.toLowerCase();
     return Object.keys(communesIndex)
+      // Filtre les noms contenant la requête
       .filter((nom) => nom.includes(lowerQuery))
-      .slice(0, CONFIG.AUTOCOMPLETE_MAX_RESULTS)
+      .slice(0, CONFIG.AUTOCOMPLETEMAXRESULTS)
+      // Retourne l'objet complet {props, feature}
       .map((nom) => communesIndex[nom]);
   }
 
+  // 2. Affiche la liste déroulante avec les résultats
   function renderAutocompleteList(matches) {
     if (!matches.length) {
-      autocompleteList.style.display = "none";
+      autocompleteList.style.display = "none"; // Cache si vide
       return;
     }
 
+    // Génère le HTML des <li> avec map()
     autocompleteList.innerHTML = matches
       .map((item, i) => {
         const { props } = item;
@@ -470,55 +477,59 @@ function setupSearchAutocomplete(communesIndex, map) {
           </li>
         `;
       })
-      .join("");
+      .join(""); // Concatène sans virgules
 
-    autocompleteList.style.display = "block";
+    autocompleteList.style.display = "block"; // Affiche la liste
   }
 
+  // 3. Surligne l'élément sélectionné (flèches clavier)
   function focusMatch(index) {
     const items = autocompleteList.querySelectorAll(".autocomplete-item");
     items.forEach((item, i) => {
-      item.classList.toggle("selected", i === index);
+      item.classList.toggle("selected", i === index); // Surligne seulement l'actif
     });
   }
 
-function selectMatch(index) {
-  const matches = getMatches(searchInput.value);
-  const match = matches[index];
-  if (!match) return;
+  // 4. Sélectionne une commune (Enter ou clic)
+  function selectMatch(index) {
+    const matches = getMatches(searchInput.value);
+    const match = matches[index];
+    if (!match) return;
 
-  const props = match.props;
-  const feature = match.feature;
-  console.log(props);
-  
+    const props = match.props;
+    const feature = match.feature;
 
-  if (!passesFilters(props)) {
-    alert("Cette commune ne correspond pas aux filtres actuels");
+    // Vérifie si la commune respecte les filtres actuels
+    if (!passesFilters(props)) {
+      alert("Cette commune ne correspond pas aux filtres actuels");
+      autocompleteList.style.display = "none";
+      searchInput.value = "";
+      return;
+    }
+
+    // Évite les doublons (vérifie les markers existants)
+    const existingMarker = markers.find((m) => m.code === props.code);
+    if (!existingMarker) {
+      // Ajoute marker + card seulement si nouvelle commune
+      addMarker(L.geoJSON(feature).getBounds(), map, props.code);
+      addCommuneCard(props);
+    }
+
+    // Zoom sur la commune
+    zoomOnCommuneFeature(feature, map);
+    
+    // Reset UI
     autocompleteList.style.display = "none";
     searchInput.value = "";
-    return;
+    searchInput.blur();
   }
 
-  const existingMarker = markers.find((m) => m.code === props.code);
-  if (!existingMarker) {
-    addMarker(L.geoJSON(feature).getBounds(), map, props.code);
-
-    addCommuneCard(props);
-  }
-
-  zoomOnCommuneFeature(feature, map);
-  
-  autocompleteList.style.display = "none";
-  searchInput.value = "";
-  searchInput.blur();
-}
-
-
+  // 5. Écoute la saisie (mise à jour live de la liste)
   searchInput.addEventListener("input", () => {
     const query = searchInput.value;
-    selectedIndex = -1;
+    selectedIndex = -1; // Reset sélection
 
-    if (query.length < 2) {
+    if (query.length < 2) { // Active après 2 caractères
       autocompleteList.style.display = "none";
       return;
     }
@@ -527,6 +538,7 @@ function selectMatch(index) {
     renderAutocompleteList(matches);
   });
 
+  // 6. Navigation clavier (flèches + Enter/Escape)
   searchInput.addEventListener("keydown", (e) => {
     const matches = getMatches(searchInput.value);
     const maxIndex = matches.length - 1;
@@ -534,12 +546,12 @@ function selectMatch(index) {
     if (!matches.length) return;
 
     if (e.key === "ArrowDown") {
-      e.preventDefault(); // Empêche le curseur de descendre dans l'input
-      selectedIndex = selectedIndex < maxIndex ? selectedIndex + 1 : 0;
+      e.preventDefault(); // Empêche curseur input
+      selectedIndex = selectedIndex < maxIndex ? selectedIndex + 1 : 0; // Boucle
       focusMatch(selectedIndex);
     } else if (e.key === "ArrowUp") {
-      e.preventDefault(); // Empêche le curseur de monter dans l'input
-      selectedIndex = selectedIndex > 0 ? selectedIndex - 1 : maxIndex;
+      e.preventDefault();
+      selectedIndex = selectedIndex > 0 ? selectedIndex - 1 : maxIndex; // Boucle
       focusMatch(selectedIndex);
     } else if (e.key === "Enter") {
       if (selectedIndex >= 0) {
@@ -550,6 +562,7 @@ function selectMatch(index) {
     }
   });
 
+  // 7. Clic sur un élément de la liste
   autocompleteList.addEventListener("click", (e) => {
     const item = e.target.closest(".autocomplete-item");
     if (!item) return;
@@ -557,12 +570,14 @@ function selectMatch(index) {
     selectMatch(index);
   });
 
+  // 8. Ferme la liste en cliquant ailleurs
   document.addEventListener("click", (e) => {
     if (!autocompleteList.contains(e.target) && e.target !== searchInput) {
       autocompleteList.style.display = "none";
     }
   });
 }
+
 
 function zoomOnCommuneFeature(feature, map) {
   const layer = L.geoJSON(feature);
@@ -638,16 +653,16 @@ function setupFilters() {
 
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
-      filters = { loyer: 30, crime: 1000, vacants: 200000 };
+      filters = { loyer: 30, crime: 1000, vacants: 200000, transports: 200000 };
 
-        if (loyerSlider) loyerSlider.value = 30;
-        if (loyerValue) loyerValue.textContent = 30;
-        if (crimeSlider) crimeSlider.value = 1000;
-        if (crimeValue) crimeValue.textContent = 1000;
-        if (vacantsSlider) vacantsSlider.value = 200000;
-        if (vacantsValue) vacantsValue.textContent = 200000;
-        if (transportsSlider) transportsSlider.value = 200000;
-        if (transportsValue) transportsValue.textContent = 200000;
+        if (loyerSlider) loyerSlider.value = filters.loyer;
+        if (loyerValue) loyerValue.textContent = filters.loyer;
+        if (crimeSlider) crimeSlider.value = filters.crime;
+        if (crimeValue) crimeValue.textContent = filters.crime;
+        if (vacantsSlider) vacantsSlider.value = filters.vacants;
+        if (vacantsValue) vacantsValue.textContent = filters.vacants;
+        if (transportsSlider) transportsSlider.value = filters.transports;
+        if (transportsValue) transportsValue.textContent = filters.transports;
         const layerSelect = document.getElementById("layerSelect");
         layerSelect.value = "loyer";
         activeLayerField = "loyer";
@@ -658,7 +673,7 @@ function setupFilters() {
   }
 }
 
-function setupFiltersToggle() {
+function setupFiltersButton() {
   const toggleBtn = document.getElementById('toggleFilters');
   const filtersPanel = document.querySelector('.filters-panel');
   
