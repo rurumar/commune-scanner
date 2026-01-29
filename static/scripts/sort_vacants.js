@@ -3,8 +3,8 @@ const csv = require('csv-parser');
 const path = require('path');
 
 // 1. CONFIGURATION DES CHEMINS
-const inputFile = path.join(__dirname, 'Data', 'logements_vacants.csv');
-const outputFile = path.join(__dirname, 'Data', 'logements_vacants_clean.csv');
+const inputFile = path.join(__dirname, 'logements_vacants.csv');
+const outputFile = path.join(__dirname, 'logements_vacants_clean.csv');
 
 const results = [];
 
@@ -15,7 +15,7 @@ fs.createReadStream(inputFile)
   .pipe(csv({ separator: ';' }))
   .on('data', (row) => {
     // Logique de repli (Coalesce) : prend la première année disponible
-    let valeur = row.pp_total_24 || row.pp_total_23 || row.pp_total_22 || row.pp_total_21 || row.pp_total_20 || "0";
+    let valeur =row.pp_vacant_25 || row.pp_vacant_24 || row.pp_vacant_23 || row.pp_vacant_22 || row.pp_vacant_21|| "N/A";
     
     // Nettoyage du format (virgule -> point pour le JS)
     valeur = valeur.toString().replace(',', '.').trim();
