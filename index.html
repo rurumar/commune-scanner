@@ -48,12 +48,13 @@
               <option value="loyer" selected>Loyer</option>
               <option value="crime">Taux de criminalité</option>
               <option value="vacants">Logements vacants</option>
+              <option value="transports">Arrêts de transports</option>
             </select>
           </div>
 
           <!-- Loyer -->
           <div class="filter-group">
-            <label class="filters-title-group"> Loyer max €/m² </label>
+            <label class="filters-title-group"> Loyer maximum €/m² </label>
             <input
               type="range"
               id="loyerSlider"
@@ -63,13 +64,21 @@
               step="1"
               class="filters-range"
             />
-            <span id="loyerValue" class="filters-range-value">30</span>
+            <input
+              type="number"
+              id="loyerValue"
+              min="0"
+              max="30"
+              step="1"
+              value="30"
+              class="filter-number"
+            />
           </div>
 
           <!-- Crimes -->
           <div class="filter-group">
             <label class="filters-title-group">
-              Nb crimes et délits pour 1000 habitants max
+              Nb maximum de crimes/délits / habitants
             </label>
             <input
               type="range"
@@ -80,39 +89,65 @@
               step="5"
               class="filters-range"
             />
-            <span id="crimeValue" class="filters-range-value">1000</span>
+            <input
+              type="number"
+              id="crimeValue"
+              min="0"
+              max="1000"
+              step="1"
+              value="1000"
+              class="filter-number"
+            />
           </div>
 
           <!-- Logements vacants -->
           <div class="filter-group">
-            <label class="filters-title-group"> Logements vacants max </label>
+            <label class="filters-title-group">
+              Nb maximum de logements vacants
+            </label>
             <input
               type="range"
               id="vacantsSlider"
               min="0"
-              max="200000"
-              value="200000"
+              max="100000"
+              value="100000"
               step="100"
               class="filters-range"
             />
-            <span id="vacantsValue" class="filters-range-value">200000</span>
+            <input
+              type="number"
+              id="vacantsValue"
+              min="0"
+              max="100000"
+              step="100"
+              value="100000"
+              class="filter-number"
+            />
           </div>
 
           <!-- Nb transports -->
           <div class="filter-group">
             <label class="filters-title-group">
-              Nb d'arrêt de transports max
+              Nb maximum d'arrêts de transport
             </label>
             <input
               type="range"
               id="transportsSlider"
               min="0"
-              max="200000"
-              value="200000"
+              max="100000"
+              value="100000"
               step="5"
               class="filters-range"
             />
-            <span id="transportsValue" class="filters-range-value">200000</span>
+            <input
+              type="number"
+              id="transportsValue"
+              min="0"
+              max="100000"
+              step="5"
+              value="100000"
+              class="filter-number"
+            />
           </div>
 
           <button id="resetFilters">Réinitialiser</button>

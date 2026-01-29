@@ -211,6 +211,22 @@ body {
   color: #6b7280;
 }
 
+.filter-number {
+  margin-left: 8px;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  width: 70px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.filter-number:focus {
+  outline: 2px solid #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+
+
 #resetFilters{
   width: 100%;
   margin-top: 10px;

@@ -16,7 +16,8 @@ const CONFIG = {
   THRESHOLDS: {
     loyer: [10, 15, 20, 25],
     crime: [30, 60, 90, 130],
-    vacants: [5000, 15000, 25000, 40000],
+    vacants: [50, 250, 500, 1000],
+    transports: [50, 250, 500, 1000]
   },
   COLORS: {
     valid: ["#fffd7d", "#FD8D3C", "#E31A1C", "#BD0026", "#800026"],
@@ -28,12 +29,16 @@ const CONFIG = {
       ranges: ["< 10", "10-15", "15-20", "20-25", "> 25", "Pas de données"],
     },
     crime: {
-      title: "Nb crimes pour 1000 habitants",
+      title: "Nb crimes/délits pour 1000 habitants",
       ranges: ["< 30", "30-60", "60-90", "90-130", "> 130", "Pas de données"],
     },
     vacants: {
       title: "Logements vacants",
-      ranges: ["< 5k", "5k-15k", "15k-25k", "25k-40k", "> 40k", "Pas de données"],
+      ranges: ["< 50", "50-250", "250-500", "500-1000", "> 1k", "Pas de données"],
+    },
+    transports: {
+      title: "Nb arrêts de transports",
+      ranges: ["< 50", "50-250", "250-500", "500-1000", "> 1k", "Pas de données"],
     },
   },
   AUTOCOMPLETE_MAX_RESULTS: 16,
@@ -41,6 +46,7 @@ const CONFIG = {
     loyer: "loyer",
     crime: "taux_pour_mille_2024",
     vacants: "vacants",
+    transports: "Transports 2025"
   },
 };
 
@@ -50,8 +56,8 @@ let geojsonLayer = null;
 let filters = {
   loyer: 30,
   crime: 1000,
-  vacants: 200000,
-  transports: 200000
+  vacants: 100000,
+  transports: 100000
 };
 let isMapMoving = false;  
 
@@ -499,6 +505,9 @@ function setupSearchAutocomplete(communesIndex, map) {
     const props = match.props;
     const feature = match.feature;
 
+    console.log(props);
+    
+
     // Vérifie si la commune respecte les filtres actuels
     if (!passesFilters(props)) {
       alert("Cette commune ne correspond pas aux filtres actuels");
@@ -605,73 +614,66 @@ function setupLayerSwitching() {
 // ============================================================================
 
 function setupFilters() {
-  const loyerSlider = document.getElementById("loyerSlider");
-  const loyerValue = document.getElementById("loyerValue");
-  const crimeSlider = document.getElementById("crimeSlider");
-  const crimeValue = document.getElementById("crimeValue");
-  const vacantsSlider = document.getElementById("vacantsSlider");
-  const vacantsValue = document.getElementById("vacantsValue");
-  const transportsSlider = document.getElementById("transportsSlider");
-  const transportsValue = document.getElementById("transportsValue");
-  const resetBtn = document.getElementById("resetFilters");
+  const filtersConfig = [
+    { slider: 'loyerSlider', value: 'loyerValue', key: 'loyer', min: 0, max: 30, step: 1 },
+    { slider: 'crimeSlider', value: 'crimeValue', key: 'crime', min: 0, max: 1000, step: 5 },
+    { slider: 'vacantsSlider', value: 'vacantsValue', key: 'vacants', min: 0, max: 100000, step: 100 },
+    { slider: 'transportsSlider', value: 'transportsValue', key: 'transports', min: 0, max: 100000, step: 5 }
+  ];
 
-  if (loyerSlider && loyerValue) {
-    loyerSlider.addEventListener("input", (e) => {
-      const value = Number(e.target.value);
-      loyerValue.textContent = value;
-      filters.loyer = value;
+  filtersConfig.forEach(({ slider, value, key, min, max }) => {
+    const sliderEl = document.getElementById(slider);
+    const valueEl = document.getElementById(value);
+
+    if (!sliderEl || !valueEl) return;
+
+    // Fonction sync bidirectionnelle
+    const sync = (val) => {
+      const clamped = Math.max(min, Math.min(max, Number(val) || min));
+      sliderEl.value = clamped;
+      valueEl.value = clamped;
+      filters[key] = clamped;
       geojsonLayer.setStyle(styleFeature);
-    });
-  }
+    };
 
-  if (crimeSlider && crimeValue) {
-    crimeSlider.addEventListener("input", (e) => {
-      const value = Number(e.target.value);
-      crimeValue.textContent = value;
-      filters.crime = value;
-      geojsonLayer.setStyle(styleFeature);
-    });
-  }
+    // Slider → number input
+    sliderEl.addEventListener('input', () => sync(sliderEl.value));
 
-  if (vacantsSlider && vacantsValue) {
-    vacantsSlider.addEventListener("input", (e) => {
-      const value = Number(e.target.value);
-      vacantsValue.textContent = value;
-      filters.vacants = value;
-      geojsonLayer.setStyle(styleFeature);
-    });
-  }
+    // Number input → slider (flèches + saisie)
+    valueEl.addEventListener('input', () => sync(valueEl.value));
+  });
 
-  if (transportsSlider && transportsValue) {
-    transportsSlider.addEventListener("input", (e) => {
-      const value = Number(e.target.value);
-      transportsValue.textContent = value;
-      filters.vacants = value;
-      geojsonLayer.setStyle(styleFeature);
-    });
-  }
-
+  // Reset
+  const resetBtn = document.getElementById('resetFilters');
   if (resetBtn) {
-    resetBtn.addEventListener("click", () => {
-      filters = { loyer: 30, crime: 1000, vacants: 200000, transports: 200000 };
-
-        if (loyerSlider) loyerSlider.value = filters.loyer;
-        if (loyerValue) loyerValue.textContent = filters.loyer;
-        if (crimeSlider) crimeSlider.value = filters.crime;
-        if (crimeValue) crimeValue.textContent = filters.crime;
-        if (vacantsSlider) vacantsSlider.value = filters.vacants;
-        if (vacantsValue) vacantsValue.textContent = filters.vacants;
-        if (transportsSlider) transportsSlider.value = filters.transports;
-        if (transportsValue) transportsValue.textContent = filters.transports;
-        const layerSelect = document.getElementById("layerSelect");
-        layerSelect.value = "loyer";
-        activeLayerField = "loyer";
-        geojsonLayer.setStyle(styleFeature);
-        updateLegend();
-
+    resetBtn.addEventListener('click', () => {
+      // Reset valeurs globales
+      filters = { loyer: 30, crime: 1000, vacants: 100000, transports: 100000 };
+      
+      // Reset sliders
+      document.getElementById('loyerSlider').value = 30;
+      document.getElementById('crimeSlider').value = 1000;
+      document.getElementById('vacantsSlider').value = 100000;
+      document.getElementById('transportsSlider').value = 100000;
+      
+      // Reset inputs number
+      document.getElementById('loyerValue').value = 30;
+      document.getElementById('crimeValue').value = 1000;
+      document.getElementById('vacantsValue').value = 100000;
+      document.getElementById('transportsValue').value = 100000;
+      
+      // Reset calque + légende
+      const layerSelect = document.getElementById('layerSelect');
+      layerSelect.value = 'loyer';
+      activeLayerField = 'loyer';
+      geojsonLayer.setStyle(styleFeature);
+      updateLegend();
     });
   }
+
 }
+
+
 
 function setupFiltersButton() {
   const toggleBtn = document.getElementById('toggleFilters');
