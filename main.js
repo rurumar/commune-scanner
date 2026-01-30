@@ -55,7 +55,7 @@ let activeLayerField = "loyer";
 let geojsonLayer = null;
 let filters = {
   loyer: 30,
-  crime: 1000,
+  crime: 2000,
   vacants: 100000,
   transports: 100000
 };
@@ -120,12 +120,21 @@ async function loadGeoJson(url) {
 
 function buildCommunesIndex(geojsonData) {
   const index = {};
+  
+  // Parcourt chaque feature GeoJSON
   geojsonData.features.forEach((feature) => {
+    // Sécurité : props existe ou objet vide
     const props = feature.properties || {};
+    
+    // Nom en minuscules pour recherche insensible à la casse
+    // "Inconnu" si nom manquant
     const nom = (props.nom || "Inconnu").toLowerCase();
+    
+    // Stocke les DEUX : props (pour autocomplete/cards) + feature (pour zoom)
     index[nom] = { props, feature };
   });
-  return index;
+  
+  return index; 
 }
 
 // ============================================================================
@@ -254,7 +263,6 @@ function handleClick(e, map, feature) {
   if (existingMarker) return;
 
   addMarker(e.target.getBounds(), map, props.code);
-  console.log(props);
   
   addCommuneCard(props);
 }
@@ -340,7 +348,7 @@ function addCommuneCard(properties) {
       <h3 class="commune-card-title">${nom}</h3>
       <p class="commune-card-data"><strong>INSEE</strong> ${insee}</p>
       <p class="commune-card-data"><strong>Loyer</strong> <span class="value-loyer">${loyer} m²</span> </p>
-      <p class="commune-card-data"><strong>Taux criminalité</strong> <span class="value-crime">${tauxCriminalite}</span></p>
+      <p class="commune-card-data"><strong>Crimes / 1000 habitants</strong> <span class="value-crime">${tauxCriminalite}</span></p>
       <p class="commune-card-data"><strong>Logements vacants</strong> <span class="value-vacants">${vacants}</span></p>
       <p class="commune-card-data"><strong>Nb arrêt de transport</strong> <span class="value-transports">${transports}</span></p>
       <button class="remove-card-button" onclick="removeCard('${cardId}')">Retirer</button>
@@ -389,8 +397,7 @@ function highlightMinMaxValues() {
     { selector: '.value-loyer',    parse: parseFloat },
     { selector: '.value-crime',    parse: parseFloat },
     { selector: '.value-vacants',  parse: parseFloat },
-    // Pour transports : on inverse min/max
-    { selector: '.value-transports', parse: parseFloat, invert: true }
+    { selector: '.value-transports', parse: parseFloat, invert: true } // Pour transports : on inverse min/max
   ];
 
   fields.forEach(field => {
@@ -503,10 +510,7 @@ function setupSearchAutocomplete(communesIndex, map) {
     if (!match) return;
 
     const props = match.props;
-    const feature = match.feature;
-
-    console.log(props);
-    
+    const feature = match.feature;    
 
     // Vérifie si la commune respecte les filtres actuels
     if (!passesFilters(props)) {
@@ -528,9 +532,10 @@ function setupSearchAutocomplete(communesIndex, map) {
     zoomOnCommuneFeature(feature, map);
     
     // Reset UI
-    autocompleteList.style.display = "none";
-    searchInput.value = "";
-    searchInput.blur();
+    autocompleteList.style.display = "none"; // cache la liste déroulante
+    searchInput.value = ""; // vide le champ de recherche  
+    searchInput.blur();  // retire le focus (bouton clavier)
+
   }
 
   // 5. Écoute la saisie (mise à jour live de la liste)
@@ -616,7 +621,7 @@ function setupLayerSwitching() {
 function setupFilters() {
   const filtersConfig = [
     { slider: 'loyerSlider', value: 'loyerValue', key: 'loyer', min: 0, max: 30, step: 1 },
-    { slider: 'crimeSlider', value: 'crimeValue', key: 'crime', min: 0, max: 1000, step: 5 },
+    { slider: 'crimeSlider', value: 'crimeValue', key: 'crime', min: 0, max: 2000, step: 5 },
     { slider: 'vacantsSlider', value: 'vacantsValue', key: 'vacants', min: 0, max: 100000, step: 100 },
     { slider: 'transportsSlider', value: 'transportsValue', key: 'transports', min: 0, max: 100000, step: 5 }
   ];
@@ -627,7 +632,7 @@ function setupFilters() {
 
     if (!sliderEl || !valueEl) return;
 
-    // Fonction sync bidirectionnelle
+    // Fonction sync pour slider <-> value de l'input
     const sync = (val) => {
       const clamped = Math.max(min, Math.min(max, Number(val) || min));
       sliderEl.value = clamped;
@@ -648,17 +653,17 @@ function setupFilters() {
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
       // Reset valeurs globales
-      filters = { loyer: 30, crime: 1000, vacants: 100000, transports: 100000 };
+      filters = { loyer: 30, crime: 2000, vacants: 100000, transports: 100000 };
       
       // Reset sliders
       document.getElementById('loyerSlider').value = 30;
-      document.getElementById('crimeSlider').value = 1000;
+      document.getElementById('crimeSlider').value = 2000;
       document.getElementById('vacantsSlider').value = 100000;
       document.getElementById('transportsSlider').value = 100000;
       
       // Reset inputs number
       document.getElementById('loyerValue').value = 30;
-      document.getElementById('crimeValue').value = 1000;
+      document.getElementById('crimeValue').value = 2000;
       document.getElementById('vacantsValue').value = 100000;
       document.getElementById('transportsValue').value = 100000;
       
@@ -672,8 +677,6 @@ function setupFilters() {
   }
 
 }
-
-
 
 function setupFiltersButton() {
   const toggleBtn = document.getElementById('toggleFilters');
